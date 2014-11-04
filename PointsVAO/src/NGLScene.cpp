@@ -133,7 +133,7 @@ void NGLScene::render()
   ngl::Mat4 MVP=transform.getMatrix()*m_vp;
   shader->setRegisteredUniformFromMat4("MVP",MVP);
   m_vao->bind();
-  m_vao->draw(GL_LINE_LOOP);
+  m_vao->draw();
   m_vao->unbind();
 
 }
