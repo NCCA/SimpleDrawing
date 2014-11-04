@@ -140,7 +140,7 @@ void NGLScene::render()
   ngl::Mat4 MVP=transform.getMatrix()*m_vp;
   shader->setRegisteredUniformFromMat4("MVP",MVP);
   glBindVertexArray(m_vao);
-  glDrawArrays(GL_POINTS,0,s_numPoints);
+  glDrawArrays(GL_TRIANGLES,0,s_numPoints/3);
   glBindVertexArray(0);
 
 }
