@@ -4,15 +4,14 @@
 #include "NGLScene.h"
 #include <ngl/NGLInit.h>
 #include <ngl/Random.h>
-#include <ngl/ShaderLib.h>
 #include <ngl/Util.h>
 
-const static int s_numPoints=100000;
+const static int s_numPoints=1000;
 
 NGLScene::NGLScene(QWindow *_parent) : OpenGLWindow(_parent)
 {
   // re-size the widget to that of the parent (in this case the GLFrame passed in on construction)
-  setTitle("Drawing Using raw OpenGL commands ");
+  setTitle("Drawing Using immediate mode OpenGL commands ");
   m_rot=0.0;
 }
 
@@ -55,12 +54,6 @@ void NGLScene::initialize()
   ngl::Mat4 perspective=ngl::perspective(45.0f,float(width()/height()),0.1,100);
   // store to vp for later use
   m_vp=view*perspective;
-  // now load the default nglColour shader and set the colour for it.
-  ngl::ShaderLib *shader = ngl::ShaderLib::instance();
-  // set this as the active shader
-  shader->use("nglColourShader");
-  // set the colour to red
-  shader->setShaderParam4f("Colour",1.0f,1.0f,1.0f,1.0f);
   createPoints(s_numPoints);
   glPointSize(5);
   startTimer(1);
@@ -71,62 +64,28 @@ void NGLScene::createPoints(unsigned int _size)
   // we are going to create an array of random points using the
   // random generator in ngl
   ngl::Random *rng= ngl::Random::instance();
-  // create an array of ngl::Vec3 and re-size
-  std::vector<ngl::Vec3> points(_size);
 
+  m_points.resize(_size);
   // now populate the array with random points in the range -5 -> 5
   for(unsigned int i=0; i<_size; ++i)
   {
-    points[i]=rng->getRandomPoint(5.0f,5.0f,5.0f);
+    m_points[i]=rng->getRandomPoint(5.0f,5.0f,5.0f);
   }
 
-  // create a VAO and store the ID
-  glGenVertexArrays(1, &m_vao);
-
-
-  // first create the VAO
-  // to use this it must be bound
-  glBindVertexArray(m_vao);
-
-  // now create a buffer for our data
-  GLuint vboID;
-  glGenBuffers(1, &vboID);
-  // now we will bind an array buffer to the first one and load the data for the verts
-  glBindBuffer(GL_ARRAY_BUFFER, vboID);
-  // copy the data
-  glBufferData(GL_ARRAY_BUFFER, points.size()*sizeof(ngl::Vec3), &points[0].m_x, GL_STATIC_DRAW);
-  // now we need to tell OpenGL the size and layout of the data
-  glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,((ngl::Real *)NULL + 0));
-  glEnableVertexAttribArray(0);
-
-  // always best to unbind after use
-  glBindVertexArray(0);
-}
+ }
 
 
 void NGLScene::updatePoints(unsigned int _size)
 {
-  std::cout<<"update\n";
   // we are going to create an array of random points using the
   // random generator in ngl
   ngl::Random *rng= ngl::Random::instance();
-  // create an array of ngl::Vec3 and re-size
-  std::vector<ngl::Vec3> points(_size);
 
   // now populate the array with random points in the range -5 -> 5
   for(unsigned int i=0; i<_size; ++i)
   {
-    points[i]=rng->getRandomPoint(5.0f,5.0f,5.0f);
+    m_points[i]=rng->getRandomPoint(5.0f,5.0f,5.0f);
   }
-  // to use this it must be bound
-  glBindVertexArray(m_vao);
-  // now copy the data
-
-//  glBindBuffer(GL_ARRAY_BUFFER, m_vao);
-  glBufferData(GL_ARRAY_BUFFER, points.size()*sizeof(ngl::Vec3), &points[0].m_x, GL_STATIC_DRAW);
-
-  // always best to unbind after use
-  glBindVertexArray(0);
 
 }
 
@@ -134,15 +93,15 @@ void NGLScene::render()
 {
   // clear the screen and depth buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
   ngl::Transformation transform;
   transform.setRotation(0.0,m_rot,0.0);
   ngl::Mat4 MVP=transform.getMatrix()*m_vp;
-  shader->setRegisteredUniformFromMat4("MVP",MVP);
-  glBindVertexArray(m_vao);
-  glDrawArrays(GL_POINTS,0,s_numPoints);
-  glBindVertexArray(0);
-
+  glLoadIdentity();
+  glMultMatrixf(&MVP.m_openGL[0]);
+  glBegin(GL_POINTS);
+    for(unsigned int i=0; i<m_points.size(); ++i)
+      glVertex3fv(&m_points[i].m_x);
+  glEnd();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
