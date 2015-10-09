@@ -8,7 +8,7 @@
 
 const static int s_numPoints=1000;
 
-NGLScene::NGLScene(QWindow *_parent) : OpenGLWindow(_parent)
+NGLScene::NGLScene()
 {
   // re-size the widget to that of the parent (in this case the GLFrame passed in on construction)
   setTitle("Drawing Using immediate mode OpenGL commands ");
@@ -18,25 +18,17 @@ NGLScene::NGLScene(QWindow *_parent) : OpenGLWindow(_parent)
 
 NGLScene::~NGLScene()
 {
-  ngl::NGLInit *Init = ngl::NGLInit::instance();
   std::cout<<"Shutting down NGL, removing VAO's and Shaders\n";
-  Init->NGLQuit();
 }
 
-void NGLScene::resizeEvent(QResizeEvent *_event )
+void NGLScene::resizeGL(int _w, int _h)
 {
-  if(isExposed())
-  {
-  int w=_event->size().width();
-  int h=_event->size().height();
-  // set the viewport for openGL
-  glViewport(0,0,w,h);
-  renderLater();
-  }
+  glViewport(0,0,_w,_h);
+  update();
 }
 
 
-void NGLScene::initialize()
+void NGLScene::initializeGL()
 {
   // we need to initialise the NGL lib which will load all of the OpenGL functions, this must
   // be done once we have a valid GL context but before we call any GL commands. If we dont do
@@ -89,7 +81,7 @@ void NGLScene::updatePoints(unsigned int _size)
 
 }
 
-void NGLScene::render()
+void NGLScene::paintGL()
 {
   // clear the screen and depth buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -141,14 +133,12 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
   case Qt::Key_Space : updatePoints(s_numPoints); break;
   default : break;
   }
-  // finally update the GLWindow and re-draw
-  if (isExposed())
-    renderLater();
+  update();
 }
 
 
 void NGLScene::timerEvent(QTimerEvent *_event)
 {
   m_rot+=0.1;
-  renderNow();
+  update();
 }
