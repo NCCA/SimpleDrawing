@@ -7,6 +7,7 @@
 #include <ngl/VertexArrayObject.h>
 #include <ngl/Text.h>
 #include <QOpenGLWindow>
+#include <memory>
 //----------------------------------------------------------------------------------------------------------------------
 /// @file NGLScene.h
 /// @brief this class inherits from the Qt OpenGLWindow and allows us to use NGL to draw OpenGL
@@ -44,6 +45,9 @@ class NGLScene : public QOpenGLWindow
     //----------------------------------------------------------------------------------------------------------------------
     /// @brief this is called everytime we resize
     //----------------------------------------------------------------------------------------------------------------------
+    // Qt 5.5.1 must have this implemented and uses it
+    void resizeGL(QResizeEvent *_event);
+    // Qt 5.x uses this instead! http://doc.qt.io/qt-5/qopenglwindow.html#resizeGL
     void resizeGL(int _w, int _h);
 
 private:
@@ -86,9 +90,11 @@ private:
     /// this is set once as static camera.
     ngl::Mat4 m_vp;
     /// @brief a vertex array object to contain the points
-    ngl::VertexArrayObject *m_vao;
+    std::unique_ptr <ngl::VertexArrayObject> m_vao;
     /// @brief store simple rotation
     ngl::Real m_rot;
+    int m_width;
+    int m_height;
 
 
 };

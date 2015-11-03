@@ -24,10 +24,16 @@ NGLScene::~NGLScene()
 
 void NGLScene::resizeGL(int _w, int _h)
 {
- glViewport(0,0,_w,_h);
- update();
+  m_width=_w*devicePixelRatio();
+  m_height=_h*devicePixelRatio();
 }
 
+void NGLScene::resizeGL(QResizeEvent *_event)
+{
+  m_width=_event->size().width()*devicePixelRatio();
+  m_height=_event->size().height()*devicePixelRatio();
+
+}
 
 void NGLScene::initializeGL()
 {
@@ -126,6 +132,7 @@ void NGLScene::paintGL()
 {
   // clear the screen and depth buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glViewport(0,0,m_width,m_height);
   ngl::ShaderLib *shader=ngl::ShaderLib::instance();
   ngl::Transformation transform;
   transform.setRotation(0.0,m_rot,0.0);

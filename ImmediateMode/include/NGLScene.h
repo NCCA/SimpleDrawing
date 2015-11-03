@@ -43,6 +43,9 @@ class NGLScene : public QOpenGLWindow
     //----------------------------------------------------------------------------------------------------------------------
     /// @brief this is called everytime we resize
     //----------------------------------------------------------------------------------------------------------------------
+    // Qt 5.5.1 must have this implemented and uses it
+    void resizeGL(QResizeEvent *_event);
+    // Qt 5.x uses this instead! http://doc.qt.io/qt-5/qopenglwindow.html#resizeGL
     void resizeGL(int _w, int _h);
 
 private:
@@ -89,7 +92,8 @@ private:
     ngl::Real m_rot;
     // create an array of ngl::Vec3 and re-size
     std::vector<ngl::Vec3> m_points;
-
+    int m_width;
+    int m_height;
 
 
 };
