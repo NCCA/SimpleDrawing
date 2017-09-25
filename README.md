@@ -1,4 +1,4 @@
-#Simple Drawing Demos
+# Simple Drawing Demos
 ![alt tag](http://nccastaff.bournemouth.ac.uk/jmacey/GraphicsLib/Demos/Drawing.png)
 
 These demos are for the blog / video posts [here](http://jonmacey.blogspot.co.uk/2014/11/drawing-with-modern-opengl.html)

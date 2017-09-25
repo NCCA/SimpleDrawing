@@ -6,7 +6,7 @@
 #include <ngl/Random.h>
 #include <ngl/Util.h>
 
-const static int s_numPoints=1000;
+const static int s_numPoints=100000;
 
 NGLScene::NGLScene()
 {
@@ -51,7 +51,7 @@ void NGLScene::initializeGL()
   ngl::Mat4 view=ngl::lookAt(ngl::Vec3(5,5,5),ngl::Vec3(0,0,0),ngl::Vec3(0,1,0));
   ngl::Mat4 perspective=ngl::perspective(45.0f,float(width()/height()),0.1,100);
   // store to vp for later use
-  m_vp=view*perspective;
+  m_vp=perspective*view;
   createPoints(s_numPoints);
   glPointSize(5);
   startTimer(1);
@@ -94,7 +94,7 @@ void NGLScene::paintGL()
   glViewport(0,0,m_width,m_height);
   ngl::Transformation transform;
   transform.setRotation(0.0,m_rot,0.0);
-  ngl::Mat4 MVP=transform.getMatrix()*m_vp;
+  ngl::Mat4 MVP=m_vp*transform.getMatrix();
   glLoadIdentity();
   glMultMatrixf(&MVP.m_openGL[0]);
   glBegin(GL_POINTS);
