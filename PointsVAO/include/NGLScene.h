@@ -1,10 +1,10 @@
-#ifndef NGLSCENE_H__
-#define NGLSCENE_H__
+#ifndef NGLSCENE_H_
+#define NGLSCENE_H_
 #include <ngl/Camera.h>
 #include <ngl/Colour.h>
 #include <ngl/Light.h>
 #include <ngl/Transformation.h>
-#include <ngl/VertexArrayObject.h>
+#include <ngl/AbstractVAO.h>
 #include <ngl/Text.h>
 #include <QOpenGLWindow>
 #include <memory>
@@ -90,7 +90,7 @@ private:
     /// this is set once as static camera.
     ngl::Mat4 m_vp;
     /// @brief a vertex array object to contain the points
-    std::unique_ptr <ngl::VertexArrayObject> m_vao;
+    std::unique_ptr <ngl::AbstractVAO> m_vao;
     /// @brief store simple rotation
     ngl::Real m_rot;
     int m_width;

@@ -52,13 +52,13 @@ void NGLScene::initializeGL()
   ngl::Mat4 view=ngl::lookAt(ngl::Vec3(5,5,5),ngl::Vec3(0,0,0),ngl::Vec3(0,1,0));
   ngl::Mat4 perspective=ngl::perspective(45.0f,float(width()/height()),0.1,100);
   // store to vp for later use
-  m_vp=view*perspective;
+  m_vp=perspective*view;
   // now load the default nglColour shader and set the colour for it.
   ngl::ShaderLib *shader = ngl::ShaderLib::instance();
   // set this as the active shader
   shader->use("nglColourShader");
   // set the colour to red
-  shader->setShaderParam4f("Colour",1.0f,1.0f,1.0f,1.0f);
+  shader->setUniform("Colour",1.0f,1.0f,1.0f,1.0f);
   createPoints(s_numPoints);
   glPointSize(5);
   startTimer(1);
@@ -136,8 +136,8 @@ void NGLScene::paintGL()
   ngl::ShaderLib *shader=ngl::ShaderLib::instance();
   ngl::Transformation transform;
   transform.setRotation(0.0,m_rot,0.0);
-  ngl::Mat4 MVP=transform.getMatrix()*m_vp;
-  shader->setRegisteredUniformFromMat4("MVP",MVP);
+  ngl::Mat4 MVP=m_vp*transform.getMatrix();
+  shader->setUniform("MVP",MVP);
   glBindVertexArray(m_vao);
   glDrawArrays(GL_POINTS,0,s_numPoints);
   glBindVertexArray(0);
@@ -145,26 +145,26 @@ void NGLScene::paintGL()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void NGLScene::mouseMoveEvent (QMouseEvent * _event)
+void NGLScene::mouseMoveEvent (QMouseEvent *)
 {
 
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
-void NGLScene::mousePressEvent ( QMouseEvent * _event)
+void NGLScene::mousePressEvent ( QMouseEvent * )
 {
 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void NGLScene::mouseReleaseEvent ( QMouseEvent * _event )
+void NGLScene::mouseReleaseEvent ( QMouseEvent *  )
 {
 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void NGLScene::wheelEvent(QWheelEvent *_event)
+void NGLScene::wheelEvent(QWheelEvent *)
 {
 
 }
@@ -186,7 +186,7 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
 }
 
 
-void NGLScene::timerEvent(QTimerEvent *_event)
+void NGLScene::timerEvent(QTimerEvent *)
 {
   m_rot+=0.1;
   update();

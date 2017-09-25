@@ -6,6 +6,7 @@
 #include <ngl/Random.h>
 #include <ngl/ShaderLib.h>
 #include <ngl/Util.h>
+#include <ngl/VAOFactory.h>
 
 const static int s_numPoints=100000;
 
@@ -51,13 +52,13 @@ void NGLScene::initializeGL()
   ngl::Mat4 view=ngl::lookAt(ngl::Vec3(5,5,5),ngl::Vec3(0,0,0),ngl::Vec3(0,1,0));
   ngl::Mat4 perspective=ngl::perspective(45.0f,float(width()/height()),0.1,100);
   // store to vp for later use
-  m_vp=view*perspective;
+  m_vp=perspective*view;
   // now load the default nglColour shader and set the colour for it.
   ngl::ShaderLib *shader = ngl::ShaderLib::instance();
   // set this as the active shader
   shader->use("nglColourShader");
   // set the colour to red
-  shader->setShaderParam4f("Colour",1.0f,1.0f,1.0f,1.0f);
+  shader->setUniform("Colour",1.0f,1.0f,1.0f,1.0f);
   createPoints(s_numPoints);
   glPointSize(5);
   startTimer(1);
@@ -78,11 +79,11 @@ void NGLScene::createPoints(unsigned int _size)
   }
 
   // first create the VAO
-  m_vao.reset( ngl::VertexArrayObject::createVOA(GL_POINTS));
+  m_vao.reset( ngl::VAOFactory::createVAO(ngl::simpleVAO,GL_POINTS));
   // to use this it must be bound
   m_vao->bind();
   // now copy the data
-  m_vao->setData(points.size()*sizeof(ngl::Vec3),points[0].m_x);
+  m_vao->setData(ngl::SimpleVAO::VertexData(points.size()*sizeof(ngl::Vec3),points[0].m_x));
   // now we need to tell OpenGL the size and layout of the data
   m_vao->setVertexAttributePointer(0,3,GL_FLOAT,0,0);
   // now tell OpenGL how maya elements we have
@@ -109,11 +110,8 @@ void NGLScene::updatePoints(unsigned int _size)
   // to use this it must be bound
   m_vao->bind();
   // now copy the data
-  m_vao->updateData(points.size()*sizeof(ngl::Vec3),points[0].m_x);
-
-  // this can also be done via GL directly using
-  //glBindBuffer(GL_ARRAY_BUFFER, m_vao->getVBOid(0));
-  //glBufferData(GL_ARRAY_BUFFER, points.size()*sizeof(ngl::Vec3), &points[0].m_x, GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, m_vao->getBufferID(0));
+  glBufferData(GL_ARRAY_BUFFER, points.size()*sizeof(ngl::Vec3), &points[0].m_x, GL_STATIC_DRAW);
 
   // always best to unbind after use
   m_vao->unbind();
@@ -128,8 +126,8 @@ void NGLScene::paintGL()
   ngl::ShaderLib *shader=ngl::ShaderLib::instance();
   ngl::Transformation transform;
   transform.setRotation(0.0,m_rot,0.0);
-  ngl::Mat4 MVP=transform.getMatrix()*m_vp;
-  shader->setRegisteredUniformFromMat4("MVP",MVP);
+  ngl::Mat4 MVP=m_vp*transform.getMatrix();
+  shader->setUniform("MVP",MVP);
   m_vao->bind();
   m_vao->draw();
   m_vao->unbind();
@@ -137,26 +135,26 @@ void NGLScene::paintGL()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void NGLScene::mouseMoveEvent (QMouseEvent * _event)
+void NGLScene::mouseMoveEvent (QMouseEvent * )
 {
 
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
-void NGLScene::mousePressEvent ( QMouseEvent * _event)
+void NGLScene::mousePressEvent ( QMouseEvent * )
 {
 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void NGLScene::mouseReleaseEvent ( QMouseEvent * _event )
+void NGLScene::mouseReleaseEvent ( QMouseEvent *  )
 {
 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void NGLScene::wheelEvent(QWheelEvent *_event)
+void NGLScene::wheelEvent(QWheelEvent *)
 {
 
 }
