@@ -29,11 +29,6 @@ void NGLScene::resizeGL(int _w, int _h)
  m_height=_h*devicePixelRatio();
 }
 
-void NGLScene::resizeGL(QResizeEvent *_event)
-{
-  m_width=_event->size().width()*devicePixelRatio();
-  m_height=_event->size().height()*devicePixelRatio();
-}
 
 void NGLScene::initializeGL()
 {
@@ -79,7 +74,7 @@ void NGLScene::createPoints(unsigned int _size)
   }
 
   // first create the VAO
-  m_vao.reset( ngl::VAOFactory::createVAO(ngl::simpleVAO,GL_POINTS));
+  m_vao= ngl::VAOFactory::createVAO(ngl::simpleVAO,GL_POINTS);
   // to use this it must be bound
   m_vao->bind();
   // now copy the data
